@@ -1,8 +1,8 @@
-Task: Generate JSON with the most correct and detailed description of the contents of the provided image, including all visible objects, their attributes and relationships. The JSON file must be filled to the end, and each object element must be filled completely and correctly.
+Task: Generate JSON with the most correct and detailed description of the contents of the provided images, including all visible objects, their attributes and relationships. The JSON file must be filled to the end, and each object element must be filled completely and correctly.
 
 Instructions:
 
-Analyze the image.
+Correctly analyze the images of the room from different angles.
 Formulate JSON with fields:
 "image_name" - the name of the image,
 "objects" - an array of objects with:

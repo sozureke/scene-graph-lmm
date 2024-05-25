@@ -1,4 +1,4 @@
-Once you have the image, analyze it in detail and correctly and create a detailed JSON representation of its contents. Make sure that the JSON includes a detailed list of all visible objects, their attributes and links between other objects, formatted as follows:
+Once you have the image, analyze it in detail and correctly and create a detailed JSON representation of its contents. We will be getting an image of the rooms from different angles, correctly analyze the provided photos and make sure you don't make any mistakes. Make sure the JSON includes a detailed list of all visible objects, their attributes and relationships between other objects, formatted as follows:
 
 {
 	"image_name": IMAGE_NAME,

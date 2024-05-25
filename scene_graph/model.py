@@ -1,7 +1,7 @@
 import google.generativeai as genai
 from google.generativeai import GenerationConfig
 from collections.abc import Iterable
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 from enum import Enum
 from .utils import Utils
@@ -21,9 +21,10 @@ class GenerativeModel:
         - API_KEY (str): API key for authentication with the Gemini API.
         - MODEL_NAME (GeminiModelName): The specific Gemini model to use for generating responses.
         - SYSTEM_MESSAGE (str): Initial system message or instruction provided to the model.
+        - CACHE_FILE (str): Path to the cache file.
     """
     
-    def __init__(self, API_KEY: str, MODEL_NAME: GeminiModelName, SYSTEM_MESSAGE: str) -> None:
+    def __init__(self, API_KEY: str, MODEL_NAME: GeminiModelName, SYSTEM_MESSAGE: str, CACHE_FILE: str = 'data/cache/cache.json') -> None:
         """
         Initializes the GenerativeModel with the provided API key, model name, and system message.
 
@@ -31,6 +32,8 @@ class GenerativeModel:
             - API_KEY (str): The API key required for authenticating requests to the Gemini API.
             - MODEL_NAME (GeminiModelName): The specific Gemini model to use (e.g., GEMINI_PRO_VISION or GEMINI_PRO_LATEST).
             - SYSTEM_MESSAGE (str): Initial instruction or message given to the model to set the context.
+            - CACHE_FILE (str): Path to the cache file (default is 'data/cache/cache.json').
+             - LOGGING_CONFIG_FILE (str): Path to the logging configuration file (default is 'data/logging_config.json').
 
         ### Raises:
             - Exception: If setting the API key or initializing the model fails.
@@ -38,6 +41,9 @@ class GenerativeModel:
         self.API_KEY = API_KEY
         self.MODEL_NAME = MODEL_NAME
         self.SYSTEM_MESSAGE = SYSTEM_MESSAGE
+        self.CACHE_FILE = CACHE_FILE
+        self.LOGGING_CONFIG_FILE = LOGGING_CONFIG_FILE
+        self.cache: Dict[str, str] = Utils.load_cache(self.CACHE_FILE)
         
         self.set_api_key()
         self.model = self.initialize_model()
@@ -131,8 +137,8 @@ class GenerativeModel:
         except FileNotFoundError as e:
             logging.error(f"File not found: {e}")
             raise
-        except Exception as e:
-            logging.error(f"Failed to prepare prompt and images: {e}")
+        except Exception as error:
+            logging.error(f"Failed to prepare prompt and images: {error}")
             raise
     
     def generate_response(self, prompt_path: str, image_paths: List[str]) -> str:
@@ -150,15 +156,26 @@ class GenerativeModel:
             - Exception: If there is an error during the response generation process.
         """
         text_prompt, images = self.prompt_preparation(prompt_path, image_paths)
+
+        cache_key = Utils.generate_hash_key(text_prompt, image_paths)
+
+        if cache_key in self.cache:
+            logging.info("[!] Returning cached response.")
+            return self.cache[cache_key]
+
         config = self.setup_config()
         if config:
-            logging.info("Configuration file loaded successfully.")
+            logging.info("[!] Configuration file loaded successfully.")
         logging.info("[!] Generating response...")
         try:
             response = self.model.generate_content([text_prompt] + images, stream=True, generation_config=config)
             response.resolve()
             
             logging.info("[!] Response generated successfully.")
+
+            self.cache[cache_key] = response.text
+            Utils.save_cache(self.cache, self.CACHE_FILE)
+
             return response.text
         except Exception as error:
             logging.error(f"Failed to generate response: {error}")
