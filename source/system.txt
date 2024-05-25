@@ -1,0 +1,13 @@
+Task: Generate JSON with the most correct and detailed description of the contents of the provided image, including all visible objects, their attributes and relationships. The JSON file must be filled to the end, and each object element must be filled completely and correctly.
+
+Instructions:
+
+Analyze the image.
+Formulate JSON with fields:
+"image_name" - the name of the image,
+"objects" - an array of objects with:
+"id" - a unique integer,
+"name" - the object's name,
+"attributes" - attributes (color, size, position, shape, material, orientation),
+"relations" - an array of relations with other objects (id, name, type, and description of the relation).
+Ensure clear and concise descriptions based on visual information.

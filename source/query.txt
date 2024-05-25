@@ -1,0 +1,30 @@
+Once you have the image, analyze it in detail and correctly and create a detailed JSON representation of its contents. Make sure that the JSON includes a detailed list of all visible objects, their attributes and links between other objects, formatted as follows:
+
+{
+	"image_name": IMAGE_NAME,
+	"objects": [
+		{
+			"id": "INT object_id",
+			"name": "STRING object_name",
+			"attributes": {
+				"color": "STRING object_color",
+				"size": "STRING object_size",
+				"position": "STRING object_position_on_the_image",
+				"shape": "STRING object_shape",
+				"material": "STRING object_material",
+				"orientation": "STRING orientation"
+			},
+			"relations": [
+				{
+					"object_id": "INT object_id",
+					"object_name": "STRING object_name",
+					"relation_type": "STRING spatial_relation",
+					"relation_description": "STRING relation_description"
+				}
+			]
+		}
+	]
+}
+
+
+JSON should clearly identify each object using a unique integer identifier, list its attributes (colour, material, size, state) and describe its relationships to other objects using the assigned identifiers. Each object field must be correctly populated. Each object must have a correct relationship between another object. Include accurate and concise descriptions based on the visual information provided in the image.
