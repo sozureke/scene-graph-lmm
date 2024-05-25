@@ -1,6 +1,7 @@
 import google.generativeai as genai
 from google.generativeai import GenerationConfig
 from collections.abc import Iterable
+from typing import List, Tuple
 
 from enum import Enum
 from .utils import Utils
@@ -13,22 +14,26 @@ class GeminiModelName(Enum):
 
 class GenerativeModel:
     """
-    A class to interact with API Gemini generative AI models.
+    A class to interact with API Gemini generative AI models, providing methods for configuration, 
+    prompt preparation, and response generation.
 
-    Attributes:
-        API_KEY (str): API key for authentication.
-        MODEL_NAME (GeminiModelName): The name of the Gemini model to use.
-        SYSTEM_MESSAGE (str): System message or instruction for the model.
+    ### Attributes:
+        - API_KEY (str): API key for authentication with the Gemini API.
+        - MODEL_NAME (GeminiModelName): The specific Gemini model to use for generating responses.
+        - SYSTEM_MESSAGE (str): Initial system message or instruction provided to the model.
     """
     
     def __init__(self, API_KEY: str, MODEL_NAME: GeminiModelName, SYSTEM_MESSAGE: str) -> None:
         """
-        Initializes the GenerativeModel with the given API key, model name, and system message.
+        Initializes the GenerativeModel with the provided API key, model name, and system message.
 
-        Args:
-            API_KEY (str): API key for authentication.
-            MODEL_NAME (GeminiModelName): The name of the Gemini model to use.
-            SYSTEM_MESSAGE (str): System message or instruction for the model.
+        ### Args:
+            - API_KEY (str): The API key required for authenticating requests to the Gemini API.
+            - MODEL_NAME (GeminiModelName): The specific Gemini model to use (e.g., GEMINI_PRO_VISION or GEMINI_PRO_LATEST).
+            - SYSTEM_MESSAGE (str): Initial instruction or message given to the model to set the context.
+
+        ### Raises:
+            - Exception: If setting the API key or initializing the model fails.
         """
         self.API_KEY = API_KEY
         self.MODEL_NAME = MODEL_NAME
@@ -39,10 +44,10 @@ class GenerativeModel:
     
     def set_api_key(self) -> None:
         """
-        Sets the API key for the generative AI model.
+        Configures the API key for accessing the Gemini generative AI services.
 
-        Raises:
-            Exception: If setting the API key fails.
+        ### Raises:
+            - Exception: If the API key configuration process fails.
         """
         try:
             genai.configure(api_key=self.API_KEY)
@@ -52,13 +57,13 @@ class GenerativeModel:
     
     def initialize_model(self) -> genai.GenerativeModel:
         """
-        Initializes the generative AI model with the given model name and system message.
+        Initializes the generative AI model with the specified model name and system message.
 
-        Returns:
-            genai.GenerativeModel: An instance of the generative AI model.
+        ### Returns:
+           - genai.GenerativeModel: An initialized instance of the specified Gemini model.
 
-        Raises:
-            Exception: If initializing the model fails.
+        ### Raises:
+            - Exception: If there is an error during the model initialization process.
         """
         try:
             return genai.GenerativeModel(model_name=self.MODEL_NAME, system_instruction=self.SYSTEM_MESSAGE)
@@ -71,27 +76,27 @@ class GenerativeModel:
         candidate_count: int | None = 1,
         max_output_tokens: int | None = 2000,
         stop_sequences: Iterable[str] | None = None,
-        temperature: float | None = 0.7,
-        top_p: float | None = 0.9,
-        top_k: int | None = 50,
+        temperature: float | None = 0.3,
+        top_p: float | None = 0.95,
+        top_k: int | None = 30,
         response_mime_type: str | None = "application/json",
         **kwargs
     ) -> GenerationConfig:
         """
-        Sets up the configuration for the generative AI model.
+        Configures the generation settings for the AI model, allowing customization of various parameters.
 
-        Args:
-            candidate_count (int | None): The number of response candidates to generate.
-            max_output_tokens (int | None): Maximum number of output tokens to generate.
-            stop_sequences (Iterable[str] | None): Sequences to stop generation.
-            temperature (float | None): Sampling temperature.
-            top_p (float | None): Top-p sampling value.
-            top_k (int | None): Top-k sampling value.
-            response_mime_type (str | None): The MIME type of the response.
-            **kwargs: Additional configuration parameters.
+        ### Args:
+            - candidate_count (int | None): The number of response candidates to generate (default is 1).
+            - max_output_tokens (int | None): The maximum number of tokens in the generated response (default is 2000).
+            - stop_sequences (Iterable[str] | None): Sequences where the generation should stop (optional).
+            - temperature (float | None): The sampling temperature, controlling randomness (default is 0.3).
+            - top_p (float | None): The cumulative probability for nucleus sampling (default is 0.95).
+            - top_k (int | None): The number of highest probability vocabulary tokens to keep for top-k filtering (default is 30).
+            - response_mime_type (str | None): The MIME type of the response (default is "application/json").
+            - **kwargs: Additional configuration parameters.
 
-        Returns:
-            GenerationConfig: The configuration for the generative model.
+        ### Returns:
+            - GenerationConfig: The configured generation settings for the model.
         """
         return GenerationConfig(
             candidate_count=candidate_count,
@@ -104,53 +109,53 @@ class GenerativeModel:
             **kwargs
         )
     
-    def prompt_preparation(self, prompt_path: str, image_path: str) -> tuple[str, str]:
+    def prompt_preparation(self, prompt_path: str, image_paths: List[str]) -> Tuple[str, List[str]]:
         """
-        Prepares the prompt and image for the generative AI model.
+        Prepares the text prompt and uploads the images for the generative AI model.
 
-        Args:
-            prompt_path (str): Path to the text prompt file.
-            image_path (str): Path to the image file.
+        ### Args:
+            - prompt_path (str): The file path to the text prompt.
+            - image_paths (List[str]): A list of file paths to the images.
 
-        Returns:
-            tuple[str, str]: A tuple containing the text prompt and the image.
+        ### Returns:
+            - Tuple[str, List[str]]: A tuple containing the text prompt and the list of uploaded image IDs.
 
-        Raises:
-            FileNotFoundError: If the file is not found.
-            Exception: If preparing the prompt and image fails.
+        ### Raises:
+            - FileNotFoundError: If the specified file(s) are not found.
+            - Exception: If there is an error during the preparation of the prompt or image upload.
         """
         try:
             text_prompt = Utils.read_file_content(prompt_path)
-            image = genai.upload_file(path=image_path)
-            return text_prompt, image
+            images = [genai.upload_file(path=image_path) for image_path in image_paths]
+            return text_prompt, images
         except FileNotFoundError as e:
             logging.error(f"File not found: {e}")
             raise
         except Exception as e:
-            logging.error(f"Failed to prepare prompt and image: {e}")
+            logging.error(f"Failed to prepare prompt and images: {e}")
             raise
     
-    def generate_response(self, prompt_path: str, image_path: str) -> str:
+    def generate_response(self, prompt_path: str, image_paths: List[str]) -> str:
         """
-        Generates a response from the generative AI model based on the provided prompt and image.
+        Generates a response from the generative AI model using the provided text prompt and images.
 
-        Args:
-            prompt_path (str): Path to the text prompt file.
-            image_path (str): Path to the image file.
+        ### Args:
+            - prompt_path (str): The file path to the text prompt.
+            - image_paths (List[str]): A list of file paths to the images.
 
-        Returns:
-            str: The generated response from the model.
+        ### Returns:
+            - str: The generated response from the model.
 
-        Raises:
-            Exception: If generating the response fails.
+        ### Raises:
+            - Exception: If there is an error during the response generation process.
         """
-        text_prompt, image = self.prompt_preparation(prompt_path, image_path)
+        text_prompt, images = self.prompt_preparation(prompt_path, image_paths)
         config = self.setup_config()
         if config:
             logging.info("Configuration file loaded successfully.")
         logging.info("[!] Generating response...")
         try:
-            response = self.model.generate_content([text_prompt, image], stream=True, generation_config=config)
+            response = self.model.generate_content([text_prompt] + images, stream=True, generation_config=config)
             response.resolve()
             
             logging.info("[!] Response generated successfully.")
