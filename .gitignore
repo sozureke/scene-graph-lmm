@@ -155,5 +155,6 @@ dmypy.json
 cython_debug/
 
 
-data/images
-data/results
+/data/images
+/data/results
+./data/cache/
