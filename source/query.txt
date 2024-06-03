@@ -1,52 +1,9 @@
-Once you have the image, analyze it in detail and correctly and create a detailed JSON representation of its contents. We will be getting an image of the rooms from different angles, correctly analyze the provided photos and make sure you don't make any mistakes. Make sure the JSON includes a detailed list of all visible objects, their attributes and relationships between other objects, formatted as follows:
+Analyze the image in detail and create a comprehensive JSON representation of its contents. The image will be of rooms from different angles. Ensure the analysis is accurate with no mistakes.
 
-{
-    "image_name": "IMAGE_NAME",
-    "objects": [
-        {
-            "id": "INT object_id",
-            "name": "STRING object_name",
-            "bounding_box": {
-                "x_min": "FLOAT x_min",
-                "y_min": "FLOAT y_min",
-                "x_max": "FLOAT x_max",
-                "y_max": "FLOAT y_max"
-            },
-            "center": {
-                "x": "FLOAT center_x",
-                "y": "FLOAT center_y"
-            },
-            "attributes": {
-                "color": "STRING object_color",
-                "size": "STRING object_size",
-                "position": "STRING object_position_on_the_image",
-                "shape": "STRING object_shape",
-                "material": "STRING object_material",
-                "orientation": "STRING orientation",
-                "mass": "FLOAT object_mass",
-                "texture": "STRING object_texture"
-            },
-            "relations": [
-                {
-                    "object_id": "INT object_id",
-                    "object_name": "STRING object_name",
-                    "relation_type": "STRING spatial_relation",
-                    "relation_description": "STRING relation_description",
-                    "relation_confidence": "FLOAT relation_confidence"
-                }
-            ],
-            "semantic_context": {
-                "function": "STRING object_function",
-                "actions": [
-                    {
-                        "action_name": "STRING action_name",
-                        "action_description": "STRING action_description"
-                    }
-                ]
-            }
-        }
-    ]
-}
+The JSON should include:
+- A unique integer identifier for each object.
+- Attributes of each object (colour, material, size, state).
+- Relationships between objects using their identifiers.
+- Accurate and concise descriptions based on the visual information.
 
-
-JSON should clearly identify each object using a unique integer identifier, list its attributes (colour, material, size, state) and describe its relationships to other objects using the assigned identifiers. Each object field must be correctly populated. Each object must have a correct relationship between another object. Include accurate and concise descriptions based on the visual information provided in the image.
+Each object field must be correctly populated, and relationships between objects must be accurately described.

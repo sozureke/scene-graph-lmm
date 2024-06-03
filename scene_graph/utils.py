@@ -1,3 +1,4 @@
+import logging.config
 from pathlib import Path
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -90,9 +91,8 @@ class Utils:
         except json.JSONDecodeError as error:
             logging.error(f"[*] Error decoding JSON file {JSON_FILE}: {error}")
             raise
-
     @staticmethod
-    def generate_hash_key(text_prompt: str, image_paths: List[str]) -> str:
+    def generate_hash_key(text_prompt: str | None, image_paths: List[str]) -> str:
         """
         Generates a unique cache key based on the text prompt and image paths.
 
@@ -104,58 +104,63 @@ class Utils:
             - str: A unique cache key.
         """
         hasher = hashlib.md5()
-        hasher.update(text_prompt.encode("utf-8"))
+        if text_prompt is not None:
+            hasher.update(text_prompt.encode("utf-8"))
         for image_path in image_paths:
             with open(image_path, "rb") as file:
                 hasher.update(file.read())
         return hasher.hexdigest()
     
     @staticmethod
-    def save_cache(cache: Dict[str, str], cache_file: str) -> None:
+    def save_cache_entry(key: str, value: str, cache_dir: str) -> None:
         """
-        Saves the cache to a file.
+        Saves a single cache entry to a file.
 
         ### Args:
-            - cache (Dict[str, str]): The cache to save.
-            - cache_file (str): The path to the cache file.
+            - key (str): The cache key.
+            - value (str): The cache value.
+            - cache_dir (str): The directory to save the cache files.
 
         ### Raises:
             - IOError: If an error occurs while writing to the file.
         """
         try:
-            with open(cache_file, 'w') as file:
-                json.dump(cache, file)
-            logging.info(f"[!] Cache successfully saved to {cache_file}")
+            os.makedirs(cache_dir, exist_ok=True)
+            with open(os.path.join(cache_dir, key + '.json'), 'w') as file:
+                json.dump({key: value}, file)
+            logging.info(f"[!] Cache entry successfully saved for key {key}")
         except IOError as error:
-            logging.error(f"[*] Error writing to cache file {cache_file}: {error}")
+            logging.error(f"[*] Error writing cache entry for key {key}: {error}")
             raise
 
     @staticmethod
-    def load_cache(cache_file: str) -> Dict[str, str]:
+    def load_cache_entry(key: str, cache_dir: str) -> Dict[str, str]:
         """
-        Loads the cache from a file.
+        Loads a single cache entry from a file.
 
         ### Args:
-            - cache_file (str): The path to the cache file.
+            - key (str): The cache key.
+            - cache_dir (str): The directory to load the cache files from.
 
         ### Returns:
-            - Dict[str, str]: The loaded cache.
+            - Dict[str, str]: The loaded cache entry.
 
         ### Raises:
             - IOError: If an error occurs while reading the file.
             - JSONDecodeError: If the file content is not valid JSON.
         """
         try:
-            if os.path.exists(cache_file):
-                with open(cache_file, 'r') as file:
+            cache_file_path = os.path.join(cache_dir, key + '.json')
+            if os.path.exists(cache_file_path):
+                with open(cache_file_path, 'r') as file:
                     return json.load(file)
             else:
                 return {}
         except IOError as error:
-            logging.error(f"Error reading cache file {cache_file}: {error}")
+            logging.error(f"Error reading cache entry for key {key}: {error}")
             raise
         except json.JSONDecodeError as error:
-            logging.error(f"Error decoding cache file {cache_file}: {error}")
+            logging.error(f"Error decoding cache entry for key {key}: {error}")
             raise
 
     @staticmethod
@@ -207,7 +212,7 @@ class Utils:
             raise
 
     @staticmethod
-    def setup_logging(logging_config_file: str = None) -> None:
+    def setup_logging(logging_config_file: str = "") -> None:
         """
         Sets up logging configuration.
 
@@ -237,3 +242,26 @@ class Utils:
             if logging_config:
                 logging.config.dictConfig(logging_config)
                 logging.info(f"[!] Logging configuration loaded from {logging_config_file}")
+
+
+    @staticmethod
+    def get_last_saved_result() -> str:
+        """
+        Returns the path to the last saved result file in the 'data/results' directory.
+
+        ### Returns:
+            - str: The path to the last saved result file.
+
+        ### Raises:
+            - FileNotFoundError: If no result files are found.
+        """
+        directory = 'data/results'
+        if not os.path.exists(directory):
+            raise FileNotFoundError(f"No results directory found at {directory}")
+        
+        files = [os.path.join(directory, f) for f in os.listdir(directory) if f.endswith('.json')]
+        if not files:
+            raise FileNotFoundError("No result files found")
+        
+        latest_file = max(files, key=os.path.getctime)
+        return latest_file
