@@ -36,6 +36,7 @@ scene_schema = {
 							"shape": { "type": "string" },
 							"material": { "type": "string" },
 							"orientation": { "type": "string" },
+							"mass": { "type": "number" },
 							"texture": { "type": "string" }
 						},
 						"required": [
@@ -45,6 +46,7 @@ scene_schema = {
 							"shape",
 							"material",
 							"orientation",
+							"mass",
 							"texture"
 						]
 					},

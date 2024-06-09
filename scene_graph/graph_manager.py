@@ -214,25 +214,25 @@ class GraphManager:
                 color='red', fontsize=12, ha='center'
             )
 
-        # Building the graph
+      
         for obj in json_data['objects']:
             self.graph.add_node(obj['id'], name=obj['name'])
             for rel in obj['relations']:
                 self.graph.add_edge(obj['id'], rel['object_id'], label=rel['relation_type'])
 
-        # Calculate positions for the nodes
+   
         positions = self.calculate_positions()
 
-        # Scaling positions to image size
+      
         positions = {node: (pos[0] * width, pos[1] * height) for node, pos in positions.items()}
 
-        # Drawing edges
+      
         for edge in self.graph.edges(data=True):
             x0, y0 = positions[edge[0]]
             x1, y1 = positions[edge[1]]
             ax.plot([x0, x1], [y0, y1], 'k-', lw=2)
 
-        # Drawing nodes and labels
+     
         for node, (x, y) in positions.items():
             ax.plot(x, y, 'ro')
             ax.text(

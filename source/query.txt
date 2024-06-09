@@ -1,9 +1,3 @@
-Analyze the image in detail and create a comprehensive JSON representation of its contents. The image will be of rooms from different angles. Ensure the analysis is accurate with no mistakes.
+Analyse the image in detail and create a complete JSON representation of its contents. The image will show the room from different angles. Make sure you have analysed every object in the image and the analysis is accurate and error free.
 
-The JSON should include:
-- A unique integer identifier for each object.
-- Attributes of each object (colour, material, size, state).
-- Relationships between objects using their identifiers.
-- Accurate and concise descriptions based on the visual information.
-
-Each object field must be correctly populated, and relationships between objects must be accurately described.
+Each object field must be correctly filled in and the relationships between objects must be accurately described.
